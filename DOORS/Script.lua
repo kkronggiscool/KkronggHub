@@ -121,7 +121,7 @@ local function setWalkSpeed(speed)
     -- Disable acceleration and set walk speed immediately
     spawn(function()
         while true do
-            wait(0.1)  -- Update every 0.1 second
+            wait(0.001)  -- Update every 0.1 second
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
                 Humanoid.PlatformStand = true  -- Disable platform acceleration
                 Humanoid.WalkSpeed = WalkSpeed  -- Keep walk speed constant
@@ -131,16 +131,35 @@ local function setWalkSpeed(speed)
 end
 
 -- Function to toggle Fly
+-- Function to toggle Fly (based on Camera direction)
 local function toggleFly(state)
     FlyEnabled = state
     if state then
+        -- Create the BodyVelocity to move the player
         BodyVelocity = Instance.new("BodyVelocity")
         BodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
-        BodyVelocity.Velocity = Vector3.new(0, FlySpeed, 0)
+        BodyVelocity.Velocity = Vector3.new(0, FlySpeed, 0)  -- Default vertical velocity
         BodyVelocity.Parent = Character:WaitForChild("HumanoidRootPart")
+
+        -- Update BodyVelocity based on camera direction (forward, backward, up, down)
+        spawn(function()
+            while FlyEnabled do
+                local cameraDirection = Camera.CFrame.LookVector  -- Camera's facing direction
+                local upDirection = Camera.CFrame.UpVector        -- Camera's up direction
+                
+                -- Movement in the direction the camera is looking
+                local forwardVelocity = cameraDirection * FlySpeed   -- Forward movement based on camera
+                local verticalVelocity = upDirection * FlySpeed     -- Vertical movement based on camera
+
+                -- Apply velocity to move in the camera's direction
+                BodyVelocity.Velocity = forwardVelocity + verticalVelocity  -- Combined movement
+
+                wait(0.001)  -- Update every 0.1 seconds
+            end
+        end)
     else
         if BodyVelocity then
-            BodyVelocity:Destroy()
+            BodyVelocity:Destroy()  -- Remove the BodyVelocity when flying is disabled
             BodyVelocity = nil
         end
     end
@@ -169,6 +188,16 @@ local function setFOV(fovValue)
     FOV = fovValue
     Camera.FieldOfView = FOV
 end
+
+spawn(function()
+    while true do
+        -- If the FOV value is different from what we want, reset it
+        if Camera.FieldOfView ~= FOV then
+            Camera.FieldOfView = FOV
+        end
+        wait(0.1)  -- Check every 0.1 second
+    end
+end)
 
 -- FOV Fix Loop (Persistent)
 spawn(function()
