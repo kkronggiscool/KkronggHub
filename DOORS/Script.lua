@@ -21,6 +21,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
+local Camera = workspace.CurrentCamera
 
 -- PlaceId Validation
 if game.PlaceId ~= 110258689672367 then
@@ -35,6 +36,9 @@ local PromptConnection
 local NoClipEnabled = false
 local WalkSpeed = 16
 local FOV = 70
+local FlyEnabled = false
+local FlySpeed = 50
+local BodyVelocity = nil
 
 -- Fullbright Script Integration (Your Provided Fullbright Script)
 if not _G.FullBrightExecuted then
@@ -114,7 +118,7 @@ end
 -- Player Tweaks (Walkspeed, NoClip)
 local function setWalkSpeed(speed)
     WalkSpeed = speed
-    -- Set the WalkSpeed directly to bypass anti-cheat acceleration
+    -- Disable acceleration
     spawn(function()
         while true do
             wait(0.1)  -- Update every 0.1 second
@@ -126,6 +130,23 @@ local function setWalkSpeed(speed)
     end)
 end
 
+-- Function to toggle Fly
+local function toggleFly(state)
+    FlyEnabled = state
+    if state then
+        BodyVelocity = Instance.new("BodyVelocity")
+        BodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+        BodyVelocity.Velocity = Vector3.new(0, FlySpeed, 0)
+        BodyVelocity.Parent = Character:WaitForChild("HumanoidRootPart")
+    else
+        if BodyVelocity then
+            BodyVelocity:Destroy()
+            BodyVelocity = nil
+        end
+    end
+end
+
+-- Function to toggle NoClip
 local function enableNoClip(state)
     NoClipEnabled = state
     if state then
@@ -141,6 +162,12 @@ local function enableNoClip(state)
             end
         end
     end
+end
+
+-- FOV Adjustment (Restoring Slider)
+local function setFOV(fovValue)
+    FOV = fovValue
+    Camera.FieldOfView = FOV
 end
 
 -- Create Orion Window (KkronggHub (DOORS))
@@ -199,11 +226,27 @@ playersTab:AddSlider({
     Callback = setWalkSpeed
 })
 
+-- FOV Slider
+playersTab:AddSlider({
+    Name = "FOV",
+    Min = 70,
+    Max = 120,
+    Default = 70,
+    Callback = setFOV
+})
+
 -- NoClip Toggle
 playersTab:AddToggle({
     Name = "NoClip",
     Default = false,
     Callback = enableNoClip
+})
+
+-- Fly Toggle
+playersTab:AddToggle({
+    Name = "Fly",
+    Default = false,
+    Callback = toggleFly
 })
 
 -- Finalize the UI Initialization
