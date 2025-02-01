@@ -1,3 +1,16 @@
+--[[ 
+______   _______  _______  _______  _______             _______ _________ _______  _         
+(  __  \ (  ___  )(  ___  )(  ____ )(  ____ \  |\     /|(  ___  )\__   __/(  ____ \( \       
+| (  \  )| (   ) || (   ) || (    )|| (    \/  | )   ( || (   ) |   ) (   | (    \/| (       
+| |   ) || |   | || |   | || (____)|| (_____   | (___) || |   | |   | |   | (__    | | _____ 
+| |   | || |   | || |   | ||     __)(_____  )  |  ___  || |   | |   | |   |  __)   | |(_____)
+| |   ) || |   | || |   | || (\ (         ) |  | (   ) || |   | |   | |   | (      | |       
+| (__/  )| (___) || (___) || ) \ \__/\____) |  | )   ( || (___) |   | |   | (____/\| (____/\ 
+(______/ (_______)(_______)|/   \__/\_______)  |/     \|(_______)   )_(   (_______/(_______/ 
+                                                                                             
+-- made by kkrongg!
+]]
+
 -- Load Orion Library (Your Provided Version)
 local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
 
@@ -18,7 +31,6 @@ end
 local FullbrightEnabled = false
 local InstantPromptEnabled = false
 local PromptConnection
-local InfiniteJumpEnabled = false
 local NoClipEnabled = false
 local WalkSpeed = 16
 local FOV = 70
@@ -62,8 +74,6 @@ if not _G.FullBrightExecuted then
     end)
 end
 
-_G.FullBrightExecuted = true
-
 -- Function to modify Proximity Prompts
 local function makeInstant(prompt)
     if prompt and prompt:IsA("ProximityPrompt") then
@@ -98,25 +108,22 @@ local function toggleInstantPrompts(state)
     end
 end
 
--- Player Tweaks (FOV, Walkspeed, Infinite Jump, NoClip)
+-- Player Tweaks (FOV, Walkspeed, NoClip)
 local function setWalkSpeed(speed)
-    LocalPlayer.Character.Humanoid.WalkSpeed = speed
+    WalkSpeed = speed
+    -- Constantly set the WalkSpeed in a loop to bypass anti-cheat
+    spawn(function()
+        while true do
+            wait(0.1)  -- Set a short wait to not overwhelm the server
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeed
+            end
+        end
+    end)
 end
 
 local function setFOV(fov)
     game:GetService("Workspace").CurrentCamera.FieldOfView = fov
-end
-
-local function enableInfiniteJump(state)
-    InfiniteJumpEnabled = state
-    if state then
-        UserInputService.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Space then
-                LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Physics)
-                LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):Move(Vector3.new(0, 1, 0))
-            end
-        end)
-    end
 end
 
 local function enableNoClip(state)
@@ -199,13 +206,6 @@ playersTab:AddSlider({
     Max = 75,
     Default = 16,
     Callback = setWalkSpeed
-})
-
--- Infinite Jump Toggle
-playersTab:AddToggle({
-    Name = "Infinite Jump",
-    Default = false,
-    Callback = enableInfiniteJump
 })
 
 -- NoClip Toggle
