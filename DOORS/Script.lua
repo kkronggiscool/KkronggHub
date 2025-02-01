@@ -118,13 +118,14 @@ end
 -- Player Tweaks (Walkspeed, NoClip)
 local function setWalkSpeed(speed)
     WalkSpeed = speed
-    -- Disable acceleration
+    -- Disable acceleration and set walk speed immediately
     spawn(function()
+        Humanoid.WalkSpeed = WalkSpeed  -- Apply speed immediately
         while true do
             wait(0.1)  -- Update every 0.1 second
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-                Humanoid.PlatformStand = true  -- Prevent acceleration
-                LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeed
+                Humanoid.PlatformStand = true  -- Disable platform acceleration
+                Humanoid.WalkSpeed = WalkSpeed  -- Keep walk speed constant
             end
         end
     end)
