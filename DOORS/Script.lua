@@ -60,22 +60,43 @@ local function toggleInstantPrompts(state)
     end
 end
 
--- Orion UI
-local Window = OrionLib:MakeWindow({Name = "Instant Interact", HidePremium = false, SaveConfig = true, ConfigFolder = "InstantInteractConfig"})
+-- Create Orion Window (Instant Interact)
+local Window = OrionLib:MakeWindow({
+    Name = "Instant Interact",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "InstantInteractConfig"
+})
 
--- Fullbright Toggle
-Window:MakeTab("Visuals", {Icon = "rbxassetid://4483345998"}):AddToggle({
+-- Create Tabs and Toggle Buttons
+
+-- Visuals Tab
+local visualsTab = Window:MakeTab({
+    Name = "Visuals",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Fullbright Toggle for Visuals Tab
+visualsTab:AddToggle({
     Name = "Fullbright",
     Default = false,
     Callback = toggleFullbright
 })
 
--- Instant Proximity Prompt Toggle
-Window:MakeTab("Gameplay", {Icon = "rbxassetid://4483345998"}):AddToggle({
+-- Gameplay Tab
+local gameplayTab = Window:MakeTab({
+    Name = "Gameplay",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- Instant Proximity Prompt Toggle for Gameplay Tab
+gameplayTab:AddToggle({
     Name = "Instant Proximity Prompts",
     Default = false,
     Callback = toggleInstantPrompts
 })
 
--- Finalize UI
+-- Finalize the UI Initialization
 OrionLib:Init()
