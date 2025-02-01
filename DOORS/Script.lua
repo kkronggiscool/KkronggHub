@@ -1,12 +1,5 @@
--- Load Orion Library (Ensure it's loaded properly before using)
-local success, OrionLib = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
-end)
-
-if not success or not OrionLib then
-    warn("Failed to load Orion Library!")
-    return
-end
+-- Load Orion Library (Your Provided Version)
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
 
 -- Services
 local Lighting = game:GetService("Lighting")
@@ -15,6 +8,7 @@ local Workspace = game:GetService("Workspace")
 -- Variables
 local FullbrightEnabled = false
 local InstantPromptEnabled = false
+local PromptConnection
 
 -- Function to toggle Fullbright
 local function toggleFullbright(state)
@@ -34,7 +28,7 @@ end
 
 -- Function to modify Proximity Prompts
 local function makeInstant(prompt)
-    if prompt and prompt:IsA("ProximityPrompt") and prompt.HoldDuration > 0 then
+    if prompt and prompt:IsA("ProximityPrompt") then
         prompt.HoldDuration = 0
     end
 end
@@ -49,9 +43,9 @@ local function toggleInstantPrompts(state)
             makeInstant(prompt)
         end
 
-        -- Connect to new prompts only once
-        if not _G.InstantPromptConnection then
-            _G.InstantPromptConnection = Workspace.DescendantAdded:Connect(function(descendant)
+        -- Connect to new prompts (only once)
+        if not PromptConnection then
+            PromptConnection = Workspace.DescendantAdded:Connect(function(descendant)
                 if InstantPromptEnabled and descendant:IsA("ProximityPrompt") then
                     makeInstant(descendant)
                 end
@@ -59,9 +53,9 @@ local function toggleInstantPrompts(state)
         end
     else
         -- Disconnect event if toggled off
-        if _G.InstantPromptConnection then
-            _G.InstantPromptConnection:Disconnect()
-            _G.InstantPromptConnection = nil
+        if PromptConnection then
+            PromptConnection:Disconnect()
+            PromptConnection = nil
         end
     end
 end
@@ -70,29 +64,17 @@ end
 local Window = OrionLib:MakeWindow({Name = "Instant Interact", HidePremium = false, SaveConfig = true, ConfigFolder = "InstantInteractConfig"})
 
 -- Fullbright Toggle
-Window:MakeTab({
-    Name = "Visuals",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-}):AddToggle({
+Window:MakeTab("Visuals", {Icon = "rbxassetid://4483345998"}):AddToggle({
     Name = "Fullbright",
     Default = false,
-    Callback = function(state)
-        toggleFullbright(state)
-    end
+    Callback = toggleFullbright
 })
 
 -- Instant Proximity Prompt Toggle
-Window:MakeTab({
-    Name = "Gameplay",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-}):AddToggle({
+Window:MakeTab("Gameplay", {Icon = "rbxassetid://4483345998"}):AddToggle({
     Name = "Instant Proximity Prompts",
     Default = false,
-    Callback = function(state)
-        toggleInstantPrompts(state)
-    end
+    Callback = toggleInstantPrompts
 })
 
 -- Finalize UI
