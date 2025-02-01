@@ -1,5 +1,12 @@
--- Load Orion Library
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
+-- Load Orion Library (Ensure it's loaded properly before using)
+local success, OrionLib = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
+end)
+
+if not success or not OrionLib then
+    warn("Failed to load Orion Library!")
+    return
+end
 
 -- Services
 local Lighting = game:GetService("Lighting")
@@ -25,9 +32,9 @@ local function toggleFullbright(state)
     end
 end
 
--- Function to make prompts instant
+-- Function to modify Proximity Prompts
 local function makeInstant(prompt)
-    if prompt.HoldDuration > 0 then
+    if prompt and prompt:IsA("ProximityPrompt") and prompt.HoldDuration > 0 then
         prompt.HoldDuration = 0
     end
 end
@@ -39,17 +46,23 @@ local function toggleInstantPrompts(state)
     if state then
         -- Modify all existing prompts
         for _, prompt in ipairs(Workspace:GetDescendants()) do
-            if prompt:IsA("ProximityPrompt") then
-                makeInstant(prompt)
-            end
+            makeInstant(prompt)
         end
 
-        -- Listen for new Proximity Prompts
-        Workspace.DescendantAdded:Connect(function(descendant)
-            if InstantPromptEnabled and descendant:IsA("ProximityPrompt") then
-                makeInstant(descendant)
-            end
-        end)
+        -- Connect to new prompts only once
+        if not _G.InstantPromptConnection then
+            _G.InstantPromptConnection = Workspace.DescendantAdded:Connect(function(descendant)
+                if InstantPromptEnabled and descendant:IsA("ProximityPrompt") then
+                    makeInstant(descendant)
+                end
+            end)
+        end
+    else
+        -- Disconnect event if toggled off
+        if _G.InstantPromptConnection then
+            _G.InstantPromptConnection:Disconnect()
+            _G.InstantPromptConnection = nil
+        end
     end
 end
 
@@ -64,7 +77,9 @@ Window:MakeTab({
 }):AddToggle({
     Name = "Fullbright",
     Default = false,
-    Callback = toggleFullbright
+    Callback = function(state)
+        toggleFullbright(state)
+    end
 })
 
 -- Instant Proximity Prompt Toggle
@@ -75,7 +90,9 @@ Window:MakeTab({
 }):AddToggle({
     Name = "Instant Proximity Prompts",
     Default = false,
-    Callback = toggleInstantPrompts
+    Callback = function(state)
+        toggleInstantPrompts(state)
+    end
 })
 
 -- Finalize UI
