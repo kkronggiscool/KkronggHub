@@ -20,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
 
 -- PlaceId Validation
 if game.PlaceId ~= 110258689672367 then
@@ -37,7 +38,7 @@ local FOV = 70
 
 -- Fullbright Script Integration (Your Provided Fullbright Script)
 if not _G.FullBrightExecuted then
-    _G.FullBrightEnabled = true
+    _G.FullBrightEnabled = false
 
     _G.NormalLightingSettings = {
         Brightness = Lighting.Brightness,
@@ -74,6 +75,8 @@ if not _G.FullBrightExecuted then
     end)
 end
 
+_G.FullBrightExecuted = true
+
 -- Function to modify Proximity Prompts
 local function makeInstant(prompt)
     if prompt and prompt:IsA("ProximityPrompt") then
@@ -108,22 +111,19 @@ local function toggleInstantPrompts(state)
     end
 end
 
--- Player Tweaks (FOV, Walkspeed, NoClip)
+-- Player Tweaks (Walkspeed, NoClip)
 local function setWalkSpeed(speed)
     WalkSpeed = speed
-    -- Constantly set the WalkSpeed in a loop to bypass anti-cheat
+    -- Set the WalkSpeed directly to bypass anti-cheat acceleration
     spawn(function()
         while true do
-            wait(0.1)  -- Set a short wait to not overwhelm the server
+            wait(0.1)  -- Update every 0.1 second
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                Humanoid.PlatformStand = true  -- Prevent acceleration
                 LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeed
             end
         end
     end)
-end
-
-local function setFOV(fov)
-    game:GetService("Workspace").CurrentCamera.FieldOfView = fov
 end
 
 local function enableNoClip(state)
@@ -163,7 +163,7 @@ local visualsTab = Window:MakeTab({
 -- Fullbright Toggle for Visuals Tab
 visualsTab:AddToggle({
     Name = "Fullbright",
-    Default = true,
+    Default = false,  -- Fullbright is disabled by default
     Callback = function(state)
         _G.FullBrightEnabled = state
     end
@@ -188,15 +188,6 @@ local playersTab = Window:MakeTab({
     Name = "Players",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
-})
-
--- FOV Slider
-playersTab:AddSlider({
-    Name = "Field of View (FOV)",
-    Min = 70,
-    Max = 120,
-    Default = 70,
-    Callback = setFOV
 })
 
 -- Walkspeed Slider
