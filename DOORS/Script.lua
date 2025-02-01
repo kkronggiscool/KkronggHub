@@ -120,7 +120,6 @@ local function setWalkSpeed(speed)
     WalkSpeed = speed
     -- Disable acceleration and set walk speed immediately
     spawn(function()
-        Humanoid.WalkSpeed = WalkSpeed  -- Apply speed immediately
         while true do
             wait(0.1)  -- Update every 0.1 second
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
@@ -170,6 +169,14 @@ local function setFOV(fovValue)
     FOV = fovValue
     Camera.FieldOfView = FOV
 end
+
+-- FOV Fix Loop (Persistent)
+spawn(function()
+    while true do
+        Camera.FieldOfView = FOV
+        wait(0.1)
+    end
+end)
 
 -- Create Orion Window (KkronggHub (DOORS))
 local Window = OrionLib:MakeWindow({
