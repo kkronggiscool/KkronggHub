@@ -115,22 +115,26 @@ local function toggleInstantPrompts(state)
     end
 end
 
--- Player Tweaks (Walkspeed, NoClip)
+-- Function to set WalkSpeed and remove acceleration
 local function setWalkSpeed(speed)
     WalkSpeed = speed
-    -- Disable acceleration and set walk speed immediately
     spawn(function()
         while true do
-            wait(0.001)  -- Update every 0.1 second
+            wait(0.001)  -- Update frequently for smooth movement
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-                Humanoid.PlatformStand = true  -- Disable platform acceleration
-                Humanoid.WalkSpeed = WalkSpeed  -- Keep walk speed constant
+                local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
+                local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+                if humanoid and rootPart then
+                    humanoid.WalkSpeed = WalkSpeed  -- Set WalkSpeed
+                    rootPart.AssemblyLinearVelocity = Vector3.zero  -- Remove acceleration/sliding
+                end
             end
         end
     end)
 end
 
--- Function to toggle Fly
+
 -- Function to toggle Fly (based on Camera direction)
 local function toggleFly(state)
     FlyEnabled = state
@@ -196,7 +200,7 @@ local function setFOV(fovValue)
     end
 
     -- If MainGameSrc isn't found, fall back to normal camera FOV change
-    Camera.FieldOfView = FOV
+    workspace.CurrentCamera.FieldOfView = 120
 end
 
 -- Create Orion Window (KkronggHub (DOORS))
