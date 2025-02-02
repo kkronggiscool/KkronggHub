@@ -183,29 +183,21 @@ local function enableNoClip(state)
     end
 end
 
--- FOV Adjustment (Restoring Slider)
+-- Function to set the FOV correctly in DOORS
 local function setFOV(fovValue)
     FOV = fovValue
+    local gameScript = getgc(true) -- Searches through the game's environment
+
+    for _, v in pairs(gameScript) do
+        if type(v) == "table" and rawget(v, "fovtarget") then
+            v.fovtarget = FOV -- Modify the game's FOV system directly
+            return
+        end
+    end
+
+    -- If MainGameSrc isn't found, fall back to normal camera FOV change
     Camera.FieldOfView = FOV
 end
-
-spawn(function()
-    while true do
-        -- If the FOV value is different from what we want, reset it
-        if Camera.FieldOfView ~= FOV then
-            Camera.FieldOfView = FOV
-        end
-        wait(0.1)  -- Check every 0.1 second
-    end
-end)
-
--- FOV Fix Loop (Persistent)
-spawn(function()
-    while true do
-        Camera.FieldOfView = FOV
-        wait(0.1)
-    end
-end)
 
 -- Create Orion Window (KkronggHub (DOORS))
 local Window = OrionLib:MakeWindow({
