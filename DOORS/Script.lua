@@ -115,25 +115,20 @@ local function toggleInstantPrompts(state)
     end
 end
 
--- Function to set WalkSpeed and remove acceleration
+-- Player Tweaks (Walkspeed, NoClip)
 local function setWalkSpeed(speed)
     WalkSpeed = speed
+    -- Disable acceleration and set walk speed immediately
     spawn(function()
         while true do
-            wait(0.001)  -- Update frequently for smooth movement
+            wait(0.1)  -- Update every 0.1 second
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-                local humanoid = LocalPlayer.Character:FindFirstChild("Humanoid")
-                local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-
-                if humanoid and rootPart then
-                    humanoid.WalkSpeed = WalkSpeed  -- Set WalkSpeed
-                    rootPart.AssemblyLinearVelocity = Vector3.zero  -- Remove acceleration/sliding
-                end
+                Humanoid.PlatformStand = true  -- Disable platform acceleration
+                Humanoid.WalkSpeed = WalkSpeed  -- Keep walk speed constant
             end
         end
     end)
 end
-
 
 -- Function to toggle Fly (based on Camera direction)
 local function toggleFly(state)
@@ -158,7 +153,7 @@ local function toggleFly(state)
                 -- Apply velocity to move in the camera's direction
                 BodyVelocity.Velocity = forwardVelocity + verticalVelocity  -- Combined movement
 
-                wait(0.001)  -- Update every 0.1 seconds
+                wait(0.1)  -- Update every 0.1 seconds
             end
         end)
     else
