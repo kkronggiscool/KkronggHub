@@ -184,18 +184,9 @@ end
 
 -- Function to set the FOV correctly in DOORS
 local function setFOV(fovValue)
-    FOV = fovValue
-    local gameScript = getgc(true) -- Searches through the game's environment
+    getgenv().FOV = fovValue
 
-    for _, v in pairs(gameScript) do
-        if type(v) == "table" and rawget(v, "fovtarget") then
-            v.fovtarget = FOV -- Modify the game's FOV system directly
-            return
-        end
-    end
-
-    -- If MainGameSrc isn't found, fall back to normal camera FOV change
-    workspace.CurrentCamera.FieldOfView = 120
+    game:GetService("Workspcae").CurrentCamera.FieldOfView = getgenv.FOV
 end
 
 -- Create Orion Window (KkronggHub (DOORS))
