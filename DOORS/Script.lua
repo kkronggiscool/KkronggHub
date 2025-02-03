@@ -186,7 +186,7 @@ end
 local function setFOV(fovValue)
     getgenv().FOV = fovValue
 
-    game:GetService("Workspcae").CurrentCamera.FieldOfView = getgenv.FOV
+    game:GetService("Workspace").CurrentCamera.FieldOfView = getgenv.FOV
 end
 
 -- Create Orion Window (KkronggHub (DOORS))
