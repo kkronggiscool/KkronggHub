@@ -184,9 +184,7 @@ end
 
 -- Function to set the FOV correctly in DOORS
 local function setFOV(fovValue)
-    getgenv().FOV = fovValue
-
-    game:GetService("Workspace").CurrentCamera.FieldOfView = getgenv.FOV
+    require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).fovtarget = fovValue
 end
 
 -- Create Orion Window (KkronggHub (DOORS))
