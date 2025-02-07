@@ -22,6 +22,7 @@ local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 local Camera = workspace.CurrentCamera
+local Main_Game = require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game)
 
 -- PlaceId Validation
 if game.PlaceId ~= 110258689672367 then
@@ -184,7 +185,7 @@ end
 
 -- Function to set the FOV correctly in DOORS
 local function setFOV(fovValue)
-    require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).fovtarget = fovValue
+    Main_Game.fovtarget = fovValue
 end
 
 -- Create Orion Window (KkronggHub (DOORS))
