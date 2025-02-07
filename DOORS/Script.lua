@@ -11,12 +11,6 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local Camera = workspace.CurrentCamera
 local Main_Game = require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game)
 
--- PlaceId Validation
-if game.PlaceId ~= 110258689672367 then
-    print("Please execute this script in DOORS Hotel- or this script won't work.")
-    return
-end
-
 -- Variables
 local FullbrightEnabled = false
 local InstantPromptEnabled = false
