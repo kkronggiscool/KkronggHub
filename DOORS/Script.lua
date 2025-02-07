@@ -3,6 +3,7 @@ local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jens
 
 -- Services
 local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -116,31 +117,37 @@ end
 local function toggleFly(state)
     FlyEnabled = state
     if state then
-        -- Create the BodyVelocity to move the player
+        -- Create BodyVelocity and attach it to HumanoidRootPart
         BodyVelocity = Instance.new("BodyVelocity")
-        BodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
-        BodyVelocity.Velocity = Vector3.new(0, FlySpeed, 0)  -- Default vertical velocity
+        BodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)  -- Allow movement in all directions
+        BodyVelocity.Velocity = Vector3.zero  -- Initialize with zero velocity
         BodyVelocity.Parent = Character:WaitForChild("HumanoidRootPart")
 
-        -- Update BodyVelocity based on camera direction (forward, backward, up, down)
-        spawn(function()
-            while FlyEnabled do
-                local cameraDirection = Camera.CFrame.LookVector  -- Camera's facing direction
-                local upDirection = Camera.CFrame.UpVector        -- Camera's up direction
+        -- Update velocity on each Heartbeat (smoother than wait)
+        local connection
+        connection = RunService.Heartbeat:Connect(function()
+            if FlyEnabled and BodyVelocity and Character:FindFirstChild("HumanoidRootPart") then
+                -- Calculate movement direction based on camera direction
+                local cameraDirection = Camera.CFrame.LookVector * FlySpeed  -- Forward movement
+                local verticalDirection = Vector3.new(0, 0, 0)              -- Default no vertical movement
                 
-                -- Movement in the direction the camera is looking
-                local forwardVelocity = cameraDirection * FlySpeed   -- Forward movement based on camera
-                local verticalVelocity = upDirection * FlySpeed     -- Vertical movement based on camera
+                -- Example: Add a condition to modify vertical movement (optional)
+                if UserInputService:IsKeyDown(Enum.KeyCode.E) then  -- Go up
+                    verticalDirection = Vector3.new(0, FlySpeed, 0)
+                elseif UserInputService:IsKeyDown(Enum.KeyCode.Q) then  -- Go down
+                    verticalDirection = Vector3.new(0, -FlySpeed, 0)
+                end
 
-                -- Apply velocity to move in the camera's direction
-                BodyVelocity.Velocity = forwardVelocity + verticalVelocity  -- Combined movement
-
-                wait(0.1)  -- Update every 0.1 seconds
+                -- Combine forward and vertical movement
+                BodyVelocity.Velocity = cameraDirection + verticalDirection
+            else
+                connection:Disconnect()  -- Stop updating if Fly is disabled
             end
         end)
     else
+        -- Disable flying and clean up BodyVelocity
         if BodyVelocity then
-            BodyVelocity:Destroy()  -- Remove the BodyVelocity when flying is disabled
+            BodyVelocity:Destroy()
             BodyVelocity = nil
         end
     end
